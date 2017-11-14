@@ -57,7 +57,8 @@ def evaluate_gradients(model_id):
         for grad in grads:
             new_error = REPO[model_id].evaluate_gradient(COMPANY_ADDRESS,grad,
                 PRIVATE_KEY,PUBLIC_KEY,input_data,target_data)
-            errors.append(new_error)
+
+            errors.append(new_error/10000000000)
     save_model_data(model_id, model_name, num_gradients, errors)
 
 def manage_gradients():
@@ -96,6 +97,11 @@ def add_model():
     clf_name = request.form.get('clf_name')
     model_name = request.form.get('model_name')
 
+    print('bounty', bounty)
+    print('target_error', target_error)
+    print('clf_name', clf_name)
+    print('model_name', model_name)
+
     input_data = request.files['input_data']
     target_data = request.files['target_data']
 
@@ -104,6 +110,7 @@ def add_model():
 
     input_data.save(input_path)
     target_data.save(target_path)
+    print('saved')
 
     input_data = pd.read_csv(input_path).values
     target_data = pd.read_csv(target_path).values
@@ -112,13 +119,14 @@ def add_model():
                                 n_inputs=input_data.shape[1],
                                 n_labels=target_data.shape[1])
     initial_error = clf.evaluate(input_data, target_data)
+
     clf.encrypt(PUBLIC_KEY)
-    model = Model(name = model_name,
-                owner=COMPANY_ADDRESS,
+    model = Model(name = model_name.strip(),
+                owner=COMPANY_ADDRESS.strip(),
                 syft_obj = clf,
-                bounty = int(bounty),
+                bounty = int(bounty.strip()),
                 initial_error = initial_error,
-                target_error = int(target_error)
+                target_error = int(target_error.strip())
                 )
     model_id = REPO.submit_model(model)
 
@@ -138,10 +146,10 @@ def get_model_data():
     for model_id in range(num_models):
         model_id_name,_,_,_,_,_ = REPO.call.getModel(model_id)
         names[model_id] = model_id_name.replace('\u0000', "")
-        print('names', names)
         with open ('model_{}.pkl'.format(model_id), 'rb') as f:
             model_name, num_grads, errs = pickle.load(f)
-        errors[model_id] = errs
+        errors[model_id] = [e/10000000000000000000000000000000000 for e in errs]
+        print('errors', errors[model_id])
         num_gradients[model_id] = num_grads
     return jsonify(dict(names=names, num_gradients=num_gradients, errors=errors))
 

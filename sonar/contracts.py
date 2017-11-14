@@ -119,7 +119,7 @@ class ModelRepository():
 
     def connect_to_contract(self, contract_address):
         """Connects to the Sonar contract using its address and ABI"""
-        filepath = os.path.abspath('abis/ModelRepository.abi')#[ANUSH] 
+        filepath = os.path.abspath('abis/ModelRepository.abi')#[ANUSH]
         f = open(filepath, 'r')
         abi = json.loads(f.read())
         f.close()
@@ -159,6 +159,7 @@ class ModelRepository():
         deploy_tx = self.get_transaction(
             model.owner,
             value=self.web3.toWei(model.bounty, 'ether'))
+            
         deploy_tx.addModel(model.name,
                             IPFSAddress().to_ethereum(ipfs_address),
                            model.initial_error, model.target_error)

@@ -69,14 +69,20 @@ def share_data():
     target_data = request.files['target_data']
     input_path = os.path.join(UPLOAD_FOLDER, 'input_data')
     target_path = os.path.join(UPLOAD_FOLDER, 'target_data')
+
+    print('model_id', model_id)
+    print('data_owner_address', data_owner_address)
+
     input_data.save(input_path)
     target_data.save(target_path)
     input_data = pd.read_csv(input_path).values
     target_data = pd.read_csv(target_path).values
 
+    print('input shape', input_data.shape  )
+    print('target shape', target_data.shape  )
     balances = update_balance_data(data_owner_address)
 
-    model = REPO[model_id].submit_gradient(data_owner_address, input_data[0], target_data[0])
+    model = REPO[model_id].submit_gradient(data_owner_address, input_data[1,:], target_data[1,:])
 
     return 'Done'
 
